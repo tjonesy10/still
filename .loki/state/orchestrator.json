@@ -22,7 +22,16 @@
     "deepen-plan-002",
     "deepen-plan-003",
     "deepen-plan-004",
-    "deepen-plan-005"
+    "deepen-plan-005",
+    "infrastructure-001",
+    "infrastructure-002",
+    "infrastructure-003",
+    "infrastructure-004",
+    "development-001",
+    "development-002",
+    "development-003",
+    "development-004",
+    "development-005"
   ],
   "tasksFailed": [],
   "phaseHistory": [
@@ -49,6 +58,12 @@
       "completedAt": "2026-02-14T20:35:00.000Z",
       "tasksCompleted": 5,
       "tasksFailed": 0
+    },
+    {
+      "phase": "INFRASTRUCTURE",
+      "completedAt": "2026-02-14T21:00:00.000Z",
+      "tasksCompleted": 4,
+      "tasksFailed": 0
     }
   ],
   "qualityGates": {
@@ -58,7 +73,7 @@
     "low": 0
   },
   "metrics": {
-    "totalCommits": 7,
+    "totalCommits": 13,
     "testsPassing": 3,
     "coverage": 0
   }
