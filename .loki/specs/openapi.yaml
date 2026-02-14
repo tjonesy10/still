@@ -1,0 +1,913 @@
+openapi: 3.0.3
+info:
+  title: Still API
+  description: Personal knowledge management app with publishing and forking
+  version: 1.0.0
+  contact:
+    name: Still Team
+servers:
+  - url: https://api.still.app/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Local development
+
+tags:
+  - name: auth
+    description: Authentication and user management
+  - name: notes
+    description: Private note operations
+  - name: links
+    description: Link management
+  - name: search
+    description: Search and discovery
+  - name: published
+    description: Publishing and public access
+  - name: attachments
+    description: Forking and attachment operations
+
+paths:
+  # ==================== AUTH ====================
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, displayName, handle]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                displayName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                handle:
+                  type: string
+                  pattern: '^[a-z0-9_-]+$'
+                  minLength: 3
+                  maxLength: 30
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email or handle already exists
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Logout current session
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logged out
+
+  /users/me:
+    get:
+      tags: [auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    patch:
+      tags: [auth]
+      summary: Update user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                settings:
+                  type: object
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # ==================== NOTES ====================
+  /notes:
+    get:
+      tags: [notes]
+      summary: List all notes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, title]
+            default: updatedAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Note'
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+
+    post:
+      tags: [notes]
+      summary: Create new note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                content:
+                  type: string
+                  default: ""
+                metadata:
+                  type: object
+      responses:
+        '201':
+          description: Note created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+
+  /notes/{noteId}:
+    get:
+      tags: [notes]
+      summary: Get note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: includeLinks
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Note details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteWithLinks'
+        '404':
+          description: Note not found
+
+    patch:
+      tags: [notes]
+      summary: Update note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Note updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+
+    delete:
+      tags: [notes]
+      summary: Delete note (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Note deleted
+
+  # ==================== LINKS ====================
+  /notes/{noteId}/links:
+    get:
+      tags: [links]
+      summary: Get all links for a note (outgoing + incoming)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Note links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outgoing:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+                  incoming:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+
+  /links/parse:
+    post:
+      tags: [links]
+      summary: Parse [[links]] from content and sync
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [noteId, content]
+              properties:
+                noteId:
+                  type: string
+                  format: uuid
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Links parsed and synced
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+                  deleted:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+
+  # ==================== SEARCH ====================
+  /search:
+    get:
+      tags: [search]
+      summary: Full-text search across notes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        note:
+                          $ref: '#/components/schemas/Note'
+                        score:
+                          type: number
+                        highlights:
+                          type: array
+                          items:
+                            type: string
+
+  /graph:
+    get:
+      tags: [search]
+      summary: Get user's graph data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 1000
+      responses:
+        '200':
+          description: Graph nodes and edges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        connections:
+                          type: integer
+                  edges:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                        target:
+                          type: string
+
+  # ==================== PUBLISHED ====================
+  /published:
+    get:
+      tags: [published]
+      summary: List user's published notes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Published notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublishedNote'
+
+    post:
+      tags: [published]
+      summary: Publish a note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sourceNoteId, slug, visibility]
+              properties:
+                sourceNoteId:
+                  type: string
+                  format: uuid
+                slug:
+                  type: string
+                  pattern: '^[a-z0-9-]+$'
+                visibility:
+                  type: string
+                  enum: [public, unlisted]
+                allowForks:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: Note published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedNote'
+
+  /published/{handle}/{slug}:
+    get:
+      tags: [published]
+      summary: Get published note (public access)
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Published note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedNotePublic'
+        '404':
+          description: Not found or private
+
+    delete:
+      tags: [published]
+      summary: Unpublish note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Unpublished
+
+  /published/{publishedNoteId}/versions:
+    post:
+      tags: [published]
+      summary: Create new version (re-publish)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: publishedNoteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                changeLog:
+                  type: string
+      responses:
+        '201':
+          description: New version created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+
+  # ==================== ATTACHMENTS ====================
+  /attachments:
+    get:
+      tags: [attachments]
+      summary: List user's attachments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [linked, forked]
+        - name: hasPendingUpdate
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Attachments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+
+    post:
+      tags: [attachments]
+      summary: Attach/fork a published note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [publishedNoteId, attachmentType]
+              properties:
+                publishedNoteId:
+                  type: string
+                  format: uuid
+                attachmentType:
+                  type: string
+                  enum: [linked, forked]
+      responses:
+        '201':
+          description: Attachment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+
+  /attachments/{attachmentId}/sync:
+    post:
+      tags: [attachments]
+      summary: Pull updates for linked attachment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Synced to latest version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+
+  # ==================== WEBSOCKET ====================
+  /ws:
+    get:
+      tags: [realtime]
+      summary: WebSocket connection for real-time sync
+      description: |
+        Upgrade to WebSocket for real-time events:
+        - note.created
+        - note.updated
+        - note.deleted
+        - link.created
+        - link.deleted
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: Switching Protocols
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        handle:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        settings:
+          type: object
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    NoteWithLinks:
+      allOf:
+        - $ref: '#/components/schemas/Note'
+        - type: object
+          properties:
+            outgoingLinks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
+            incomingLinks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
+
+    Link:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sourceNoteId:
+          type: string
+          format: uuid
+        targetNoteId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        context:
+          type: string
+
+    PublishedNote:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        sourceNoteId:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        visibility:
+          type: string
+          enum: [public, unlisted]
+        allowForks:
+          type: boolean
+        currentVersionId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        viewCount:
+          type: integer
+
+    PublishedNotePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        author:
+          type: object
+          properties:
+            displayName:
+              type: string
+            handle:
+              type: string
+        slug:
+          type: string
+        allowForks:
+          type: boolean
+        currentVersion:
+          $ref: '#/components/schemas/Version'
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              versionNumber:
+                type: integer
+              createdAt:
+                type: string
+                format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        viewCount:
+          type: integer
+
+    Version:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        publishedNoteId:
+          type: string
+          format: uuid
+        versionNumber:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        links:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        changeLog:
+          type: string
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        publishedNoteId:
+          type: string
+          format: uuid
+        attachmentType:
+          type: string
+          enum: [linked, forked]
+        localNoteId:
+          type: string
+          format: uuid
+        attachedVersionId:
+          type: string
+          format: uuid
+        currentVersionId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        lastSyncedAt:
+          type: string
+          format: date-time
+        hasPendingUpdate:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
