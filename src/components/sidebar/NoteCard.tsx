@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Note } from '@/types/note'
 import { useStore } from '@/stores'
 
@@ -5,7 +6,7 @@ interface NoteCardProps {
   note: Note
 }
 
-export function NoteCard({ note }: NoteCardProps) {
+export const NoteCard = memo(function NoteCard({ note }: NoteCardProps) {
   const selectedNoteId = useStore((state) => state.selectedNoteId)
   const setSelectedNoteId = useStore((state) => state.setSelectedNoteId)
 
@@ -26,4 +27,4 @@ export function NoteCard({ note }: NoteCardProps) {
       </div>
     </button>
   )
-}
+})

@@ -4,8 +4,11 @@ import { Editor } from './components/editor'
 import { GraphView } from './components/graph'
 import { CommandPalette } from './components/command'
 import { useStore } from './stores'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 function App() {
+  useKeyboardShortcuts()
+
   const selectedNoteId = useStore((state) => state.selectedNoteId)
   const viewMode = useStore((state) => state.viewMode)
   const setViewMode = useStore((state) => state.setViewMode)

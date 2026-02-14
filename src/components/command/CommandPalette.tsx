@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Command } from 'cmdk'
 import { useStore } from '@/stores'
 import { Note } from '@/types/note'
@@ -11,18 +11,6 @@ export function CommandPalette() {
   const addNote = useStore((state) => state.addNote)
 
   const [search, setSearch] = useState('')
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        useStore.getState().openCommandPalette()
-      }
-    }
-
-    document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
-  }, [])
 
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(search.toLowerCase()) ||
