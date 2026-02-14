@@ -2,6 +2,8 @@
  * Publishing and versioning types
  */
 
+import { Note } from './note'
+
 export interface PublishedNote {
   id: string
   userId: string

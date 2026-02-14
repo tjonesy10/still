@@ -42,7 +42,8 @@ export interface NoteWithLinks extends Note {
 export interface Link {
   id: string
   sourceNoteId: string
-  targetNoteId: string
+  targetNoteId: string | null // null for unresolved links
+  linkText: string // The original [[link text]]
   createdAt: Date
   context?: string
 }

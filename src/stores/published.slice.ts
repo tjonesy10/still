@@ -113,7 +113,7 @@ export const createPublishedSlice: StateCreator<
 
       // Update the published note with new version info
       get().updatePublished(publishedId, {
-        version: response.data.version,
+        currentVersionId: response.data.versionId,
         updatedAt: new Date(response.data.updatedAt),
       })
     } catch (error) {
