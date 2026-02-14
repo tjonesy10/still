@@ -1,0 +1,44 @@
+{
+  "tasks": [
+    {
+      "id": "bootstrap-001",
+      "phase": "BOOTSTRAP",
+      "priority": "critical",
+      "title": "Initialize project infrastructure",
+      "description": "Set up Vite + TypeScript + React project with Tailwind CSS and shadcn/ui",
+      "dependencies": [],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:50:00.000Z"
+    },
+    {
+      "id": "bootstrap-002",
+      "phase": "BOOTSTRAP",
+      "priority": "critical",
+      "title": "Configure ESLint and Prettier",
+      "description": "Set up code quality tools with TypeScript support",
+      "dependencies": ["bootstrap-001"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:50:00.000Z"
+    },
+    {
+      "id": "bootstrap-003",
+      "phase": "BOOTSTRAP",
+      "priority": "critical",
+      "title": "Initialize Git repository",
+      "description": "Set up git with appropriate .gitignore",
+      "dependencies": ["bootstrap-001"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:50:00.000Z"
+    },
+    {
+      "id": "bootstrap-004",
+      "phase": "BOOTSTRAP",
+      "priority": "high",
+      "title": "Create project README",
+      "description": "Document project setup, architecture, and development workflow",
+      "dependencies": ["bootstrap-001"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:50:00.000Z"
+    }
+  ]
+}
