@@ -1,84 +1,64 @@
 {
   "tasks": [
     {
-      "id": "discovery-001",
-      "phase": "DISCOVERY",
+      "id": "arch-001",
+      "phase": "ARCHITECTURE",
       "priority": "critical",
-      "title": "Analyze PRD and extract requirements",
-      "description": "Break down PRD into user stories, acceptance criteria, and technical requirements. Create requirement matrix.",
+      "title": "Design system architecture",
+      "description": "Define layers: presentation, application, domain, infrastructure. Establish boundaries and dependencies.",
       "dependencies": [],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     },
     {
-      "id": "discovery-002",
-      "phase": "DISCOVERY",
+      "id": "arch-002",
+      "phase": "ARCHITECTURE",
       "priority": "critical",
-      "title": "Design data model",
-      "description": "Define Note, Link, Graph, User, PublishedNote, and Fork entities with relationships. Include versioning schema.",
-      "dependencies": ["discovery-001"],
+      "title": "Create component storybook setup",
+      "description": "Set up Storybook for component development and testing. Document design system components.",
+      "dependencies": [],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     },
     {
-      "id": "discovery-003",
-      "phase": "DISCOVERY",
-      "priority": "critical",
-      "title": "Create OpenAPI specification",
-      "description": "Design REST API for Lovable Cloud backend: notes CRUD, linking, publishing, forking, versioning, auth endpoints.",
-      "dependencies": ["discovery-002"],
-      "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
-    },
-    {
-      "id": "discovery-004",
-      "phase": "DISCOVERY",
+      "id": "arch-003",
+      "phase": "ARCHITECTURE",
       "priority": "high",
-      "title": "Define component hierarchy",
-      "description": "Map UI components: Editor, Sidebar, GraphView, CommandPalette, PublishDialog, ForkDialog, etc. Include props and state flow.",
-      "dependencies": ["discovery-001"],
+      "title": "Define TypeScript types and interfaces",
+      "description": "Create comprehensive type definitions for all entities, API responses, component props.",
+      "dependencies": ["arch-001"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     },
     {
-      "id": "discovery-005",
-      "phase": "DISCOVERY",
+      "id": "arch-004",
+      "phase": "ARCHITECTURE",
       "priority": "high",
-      "title": "Plan state management strategy",
-      "description": "Decide on state solution (Zustand/Jotai/Context). Design stores for notes, links, graph, auth, sync state.",
-      "dependencies": ["discovery-002"],
+      "title": "Set up API client with interceptors",
+      "description": "Create axios client with auth interceptors, error handling, request/response transforms.",
+      "dependencies": ["arch-003"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     },
     {
-      "id": "discovery-006",
-      "phase": "DISCOVERY",
+      "id": "arch-005",
+      "phase": "ARCHITECTURE",
       "priority": "high",
-      "title": "Design [[link]] parsing system",
-      "description": "Algorithm for detecting, parsing, and validating [[Note Title]] syntax. Handle edge cases, circular references.",
-      "dependencies": ["discovery-002"],
+      "title": "Configure testing infrastructure",
+      "description": "Set up Vitest, React Testing Library, test utilities, mocks for API/stores.",
+      "dependencies": [],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     },
     {
-      "id": "discovery-007",
-      "phase": "DISCOVERY",
+      "id": "arch-006",
+      "phase": "ARCHITECTURE",
       "priority": "medium",
-      "title": "Plan graph visualization approach",
-      "description": "Evaluate force-directed layout libraries (D3, vis.js, react-force-graph). Performance considerations for large graphs.",
-      "dependencies": ["discovery-004"],
+      "title": "Create architecture decision records (ADRs)",
+      "description": "Document key architectural decisions: state management, routing, styling, testing.",
+      "dependencies": ["arch-001"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
-    },
-    {
-      "id": "discovery-008",
-      "phase": "DISCOVERY",
-      "priority": "medium",
-      "title": "Design publishing & forking workflow",
-      "description": "UX flow for publish, attach/fork, versioning, attribution. Permission models (public/unlisted, license toggles).",
-      "dependencies": ["discovery-002"],
-      "status": "pending",
-      "createdAt": "2026-02-14T19:54:00.000Z"
+      "createdAt": "2026-02-14T20:10:00.000Z"
     }
   ]
 }
