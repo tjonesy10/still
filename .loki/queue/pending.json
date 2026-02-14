@@ -1,44 +1,84 @@
 {
   "tasks": [
     {
-      "id": "bootstrap-001",
-      "phase": "BOOTSTRAP",
+      "id": "discovery-001",
+      "phase": "DISCOVERY",
       "priority": "critical",
-      "title": "Initialize project infrastructure",
-      "description": "Set up Vite + TypeScript + React project with Tailwind CSS and shadcn/ui",
+      "title": "Analyze PRD and extract requirements",
+      "description": "Break down PRD into user stories, acceptance criteria, and technical requirements. Create requirement matrix.",
       "dependencies": [],
       "status": "pending",
-      "createdAt": "2026-02-14T19:50:00.000Z"
+      "createdAt": "2026-02-14T19:54:00.000Z"
     },
     {
-      "id": "bootstrap-002",
-      "phase": "BOOTSTRAP",
+      "id": "discovery-002",
+      "phase": "DISCOVERY",
       "priority": "critical",
-      "title": "Configure ESLint and Prettier",
-      "description": "Set up code quality tools with TypeScript support",
-      "dependencies": ["bootstrap-001"],
+      "title": "Design data model",
+      "description": "Define Note, Link, Graph, User, PublishedNote, and Fork entities with relationships. Include versioning schema.",
+      "dependencies": ["discovery-001"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:50:00.000Z"
+      "createdAt": "2026-02-14T19:54:00.000Z"
     },
     {
-      "id": "bootstrap-003",
-      "phase": "BOOTSTRAP",
+      "id": "discovery-003",
+      "phase": "DISCOVERY",
       "priority": "critical",
-      "title": "Initialize Git repository",
-      "description": "Set up git with appropriate .gitignore",
-      "dependencies": ["bootstrap-001"],
+      "title": "Create OpenAPI specification",
+      "description": "Design REST API for Lovable Cloud backend: notes CRUD, linking, publishing, forking, versioning, auth endpoints.",
+      "dependencies": ["discovery-002"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:50:00.000Z"
+      "createdAt": "2026-02-14T19:54:00.000Z"
     },
     {
-      "id": "bootstrap-004",
-      "phase": "BOOTSTRAP",
+      "id": "discovery-004",
+      "phase": "DISCOVERY",
       "priority": "high",
-      "title": "Create project README",
-      "description": "Document project setup, architecture, and development workflow",
-      "dependencies": ["bootstrap-001"],
+      "title": "Define component hierarchy",
+      "description": "Map UI components: Editor, Sidebar, GraphView, CommandPalette, PublishDialog, ForkDialog, etc. Include props and state flow.",
+      "dependencies": ["discovery-001"],
       "status": "pending",
-      "createdAt": "2026-02-14T19:50:00.000Z"
+      "createdAt": "2026-02-14T19:54:00.000Z"
+    },
+    {
+      "id": "discovery-005",
+      "phase": "DISCOVERY",
+      "priority": "high",
+      "title": "Plan state management strategy",
+      "description": "Decide on state solution (Zustand/Jotai/Context). Design stores for notes, links, graph, auth, sync state.",
+      "dependencies": ["discovery-002"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:54:00.000Z"
+    },
+    {
+      "id": "discovery-006",
+      "phase": "DISCOVERY",
+      "priority": "high",
+      "title": "Design [[link]] parsing system",
+      "description": "Algorithm for detecting, parsing, and validating [[Note Title]] syntax. Handle edge cases, circular references.",
+      "dependencies": ["discovery-002"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:54:00.000Z"
+    },
+    {
+      "id": "discovery-007",
+      "phase": "DISCOVERY",
+      "priority": "medium",
+      "title": "Plan graph visualization approach",
+      "description": "Evaluate force-directed layout libraries (D3, vis.js, react-force-graph). Performance considerations for large graphs.",
+      "dependencies": ["discovery-004"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:54:00.000Z"
+    },
+    {
+      "id": "discovery-008",
+      "phase": "DISCOVERY",
+      "priority": "medium",
+      "title": "Design publishing & forking workflow",
+      "description": "UX flow for publish, attach/fork, versioning, attribution. Permission models (public/unlisted, license toggles).",
+      "dependencies": ["discovery-002"],
+      "status": "pending",
+      "createdAt": "2026-02-14T19:54:00.000Z"
     }
   ]
 }
